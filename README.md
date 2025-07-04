@@ -22,7 +22,7 @@ This project is a Spring Boot application that demonstrates how to use the `lang
 
     ```bash
     git clone <repository-url>
-    cd langchain4j-impl
+    cd Doc2Chat
     ```
 
 2.  **Set Environment Variables:**
