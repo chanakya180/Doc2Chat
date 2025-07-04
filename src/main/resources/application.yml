@@ -1,0 +1,35 @@
+logging:
+  level:
+    dev.langchain4j: DEBUG
+    org.springframework.web: INFO
+
+spring:
+  application:
+    name: langchain4j-impl
+
+server:
+  port: 8080
+
+embedding-store:
+  host: localhost
+  port: 5432
+  database: postgres
+  user: postgres
+  password: password
+  table: documents
+  use-index: true
+  index-list-size: 100
+  create-table: true
+  drop-table-first: true
+
+langchain4j:
+  open-ai:
+    chat-model:
+      api-key: ${OPENAI_API_KEY}
+      model-name: gpt-3.5-turbo
+      temperature: 0.7
+    embedding-model:
+      api-key: ${OPENAI_API_KEY}
+      model-name: text-embedding-ada-002
+
+docs.path: ${DOCS_PATH}

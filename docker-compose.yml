@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  pgvector:
+    image: pgvector/pgvector:pg17
+    container_name: pgvector-db
+    hostname: localhost
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_PASSWORD: password
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/17/bin
+      GOSU_VERSION: 1.17
+      LANG: en_US.utf8
+      PG_MAJOR: 17
+      PG_VERSION: 17.4-1.pgdg120+2
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: "no"  # Note: valid values are "no", "always", "on-failure", "unless-stopped"
+
+volumes:
+  pgdata:
