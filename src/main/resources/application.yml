@@ -5,7 +5,7 @@ logging:
 
 spring:
   application:
-    name: langchain4j-impl
+    name: Doc2Chat
 
 server:
   port: 8080

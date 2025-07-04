@@ -1,4 +1,4 @@
-package com.chanakya.langchain4jimpl.controller;
+package com.chanakya.doc2chat.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

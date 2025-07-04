@@ -1,13 +1,10 @@
-package com.chanakya.langchain4jimpl.dto;
+package com.chanakya.doc2chat.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ChatRequest {
     private String message;
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

@@ -1,9 +1,9 @@
-package com.chanakya.langchain4jimpl.service.impl;
+package com.chanakya.doc2chat.service.impl;
 
-import com.chanakya.langchain4jimpl.ai.Assistant;
-import com.chanakya.langchain4jimpl.dto.ChatRequest;
-import com.chanakya.langchain4jimpl.dto.ChatResponse;
-import com.chanakya.langchain4jimpl.service.DocumentService;
+import com.chanakya.doc2chat.ai.Assistant;
+import com.chanakya.doc2chat.dto.ChatRequest;
+import com.chanakya.doc2chat.dto.ChatResponse;
+import com.chanakya.doc2chat.service.DocumentService;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
@@ -13,8 +13,7 @@ import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +26,13 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
     @Value("${docs.path}")
     private String docsPath;
 
-    private static final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
     private final Assistant assistant;
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;

@@ -1,6 +1,6 @@
-package com.chanakya.langchain4jimpl.config;
+package com.chanakya.doc2chat.config;
 
-import com.chanakya.langchain4jimpl.ai.Assistant;
+import com.chanakya.doc2chat.ai.Assistant;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;

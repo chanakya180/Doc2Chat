@@ -1,7 +1,8 @@
-package com.chanakya.langchain4jimpl.service;
+package com.chanakya.doc2chat.service;
 
-import com.chanakya.langchain4jimpl.dto.ChatRequest;
-import com.chanakya.langchain4jimpl.dto.ChatResponse;
+
+import com.chanakya.doc2chat.dto.ChatRequest;
+import com.chanakya.doc2chat.dto.ChatResponse;
 
 public interface DocumentService {
     void ingestDocuments();

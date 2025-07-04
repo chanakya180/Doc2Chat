@@ -1,4 +1,4 @@
-package com.chanakya.langchain4jimpl.config;
+package com.chanakya.doc2chat.config;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;

@@ -1,8 +1,8 @@
-package com.chanakya.langchain4jimpl.controller;
+package com.chanakya.doc2chat.controller;
 
-import com.chanakya.langchain4jimpl.dto.ChatRequest;
-import com.chanakya.langchain4jimpl.dto.ChatResponse;
-import com.chanakya.langchain4jimpl.service.DocumentService;
+import com.chanakya.doc2chat.dto.ChatRequest;
+import com.chanakya.doc2chat.dto.ChatResponse;
+import com.chanakya.doc2chat.service.DocumentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;

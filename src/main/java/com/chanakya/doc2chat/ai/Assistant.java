@@ -1,4 +1,4 @@
-package com.chanakya.langchain4jimpl.ai;
+package com.chanakya.doc2chat.ai;
 
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;

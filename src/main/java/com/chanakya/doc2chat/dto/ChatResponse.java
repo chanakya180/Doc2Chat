@@ -1,20 +1,13 @@
-package com.chanakya.langchain4jimpl.dto;
+package com.chanakya.doc2chat.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ChatResponse {
     private String response;
-
-    public ChatResponse() {
-    }
-
     public ChatResponse(String response) {
-        this.response = response;
-    }
-
-    public String getResponse() {
-        return response;
-    }
-
-    public void setResponse(String response) {
         this.response = response;
     }
 }
