@@ -1,5 +1,4 @@
-[![Java CI with Maven](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml)
-
+[![Java CI with Maven](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml/badge.svg)](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml)
 # Doc2Chat
 
 This project is a Spring Boot application that demonstrates how to use the `langchain4j` library to build a chat application that can answer questions based on a set of documents.
