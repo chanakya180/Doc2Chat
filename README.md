@@ -29,10 +29,10 @@ Keycloak is included in the `docker-compose.yml` file and will be started alongs
     ```bash
     docker-compose up -d
     ```
-    This will start both the database and Keycloak. By default, Keycloak will be available at [http://localhost:8081](http://localhost:8081).
+    This will start both the database and Keycloak. By default, Keycloak will be available at [http://localhost:8081](http://localhost:8082).
 
 2. **Import Realm Configuration:**
-    - Log in to the Keycloak admin console at [http://localhost:8081](http://localhost:8081).
+    - Log in to the Keycloak admin console at [http://localhost:8082](http://localhost:8082).
     - Go to "Realm Settings" > "Import" and upload `src/main/resources/realm-export.json`.
 
 3. **Create/Open a Client:**
@@ -48,7 +48,7 @@ Keycloak is included in the `docker-compose.yml` file and will be started alongs
     - Use Keycloak's token endpoint to get a JWT for API requests.
     - Example (password grant, for development only):
       ```bash
-      curl -X POST 'http://localhost:8081/realms/<realm-name>/protocol/openid-connect/token' \
+      curl -X POST 'http://localhost:8082/realms/<realm-name>/protocol/openid-connect/token' \
         -d 'client_id=<client-id>' \
         -d 'username=<username>' \
         -d 'password=<password>' \
@@ -66,7 +66,6 @@ Keycloak is included in the `docker-compose.yml` file and will be started alongs
 2. **Set Environment Variables:**
     Before running the application, set the following environment variables:
     - `OPENAI_API_KEY`: Your OpenAI API key.
-    - `DOCS_PATH`: Absolute path to the directory containing the documents you want to ingest.
 
 3. **Configure Authentication:**
     - By default, endpoints require a valid JWT in the `Authorization` header.
@@ -90,13 +89,13 @@ All endpoints require a valid Bearer token (JWT) in the `Authorization` header.
 
 - **Ingest Documents**
     ```
-    GET /api/documents/ingest
+    POST /api/ingest
     ```
-    Ingests documents from the path specified in the `DOCS_PATH` environment variable.
+    Ingests documents from the API.
 
 - **Chat with Documents**
     ```
-    POST /api/documents/chat
+    POST /api/chat
     Content-Type: application/json
     Authorization: Bearer <your-jwt-token>
     ```
@@ -115,7 +114,7 @@ All endpoints require a valid Bearer token (JWT) in the `Authorization` header.
 
 - **List Documents**
     ```
-    GET /api/documents/list
+    GET /api/list
     ```
     Returns a list of ingested documents for the authenticated user.
 
@@ -144,7 +143,7 @@ All endpoints require a valid Bearer token (JWT) in the `Authorization` header.
 - Custom claim and authority converters for flexible role mapping.
 - Example (using curl with a Keycloak JWT token):
     ```bash
-    curl -X POST http://localhost:8080/api/documents/chat \
+    curl -X POST http://localhost:8080/api/chat \
       -H "Authorization: Bearer <your-keycloak-jwt-token>" \
       -H "Content-Type: application/json" \
       -d '{"message": "What is in my documents?"}'
