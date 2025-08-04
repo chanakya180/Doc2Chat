@@ -5,18 +5,15 @@ import com.chanakya.doc2chat.dto.ChatResponse;
 import com.chanakya.doc2chat.service.DocumentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/documents")
+@RequestMapping("/api")
 public class DocumentController {
 
     private final DocumentService documentService;
@@ -25,30 +22,28 @@ public class DocumentController {
         this.documentService = documentService;
     }
 
-    @GetMapping("/ingest")
-    public ResponseEntity<ChatResponse> ingestDocuments(Principal principal) {
+
+    @PostMapping("/ingest")
+    public ResponseEntity<ChatResponse> ingestDocuments(@RequestParam(name = "file", required = false) MultipartFile file, Principal principal) {
       String userId = principal.getName();
-      documentService.ingestDocuments(userId);
       log.debug("Ingest requested by user: {}", userId);
+      documentService.ingestDocuments(file, userId);
       return ResponseEntity.ok().body(new ChatResponse("Documents ingested successfully for user: " + userId));
     }
 
     @GetMapping("/chat")
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest chatRequest, Principal principal) {
       String userId = principal.getName();
-      ChatResponse chatResponse = documentService.chatWithDocument(chatRequest, userId);
       log.debug("Chat requested by user: {}", userId);
+      ChatResponse chatResponse = documentService.chatWithDocument(chatRequest, userId);
       return ResponseEntity.ok().body(chatResponse);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<Map<String, String>>> listDocuments(Principal principal) {
+    public ResponseEntity<List<String>> listDocuments(Principal principal) {
       String userId = principal.getName();
-      System.out.println("List requested by user: " + userId);
-      List<Map<String, String>> docs = List.of(
-              Map.of("id", "doc1", "name", "Document 1"),
-              Map.of("id", "doc2", "name", "Document 2")
-      );
-      return ResponseEntity.ok(docs);
+      log.debug("List of documents requested by user: {}", userId);
+      List<String> strings = documentService.listDocuments(userId);
+      return ResponseEntity.ok().body(strings);
     }
 }

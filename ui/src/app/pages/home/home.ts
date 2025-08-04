@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import Keycloak from 'keycloak-js';
 
 @Component({
@@ -8,14 +8,21 @@ import Keycloak from 'keycloak-js';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  username: string | undefined;
+  username = signal('Hello ');
   constructor(private keycloak: Keycloak) {}
 
   ngOnInit(): void {
     this.keycloak.loadUserProfile().then((userProfile) => {
-      if (userProfile) {
-        this.username =
-          'Hello ' + userProfile.firstName + ' ' + userProfile.lastName;
+      if (userProfile != null) {
+        this.username.update(
+          (value) =>
+            value +
+            (
+              (userProfile.firstName != null ? userProfile.firstName : '') +
+              ' ' +
+              (userProfile.lastName != null ? userProfile.lastName : '')
+            ).trim(),
+        );
       }
     });
   }

@@ -17,24 +17,16 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.*;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Slf4j
 @Service
 public class DocumentServiceImpl implements DocumentService {
-
-    @Value("${docs.path}")
-    private String docsPath;
 
     private final Assistant assistant;
     private final EmbeddingModel embeddingModel;
@@ -47,47 +39,59 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void ingestDocuments(String userId) {
+    public List<String> listDocuments(String userId) {
+        EmbeddingSearchResult<TextSegment> search = embeddingStore.search(
+                EmbeddingSearchRequest.builder()
+                        .filter(new IsEqualTo("userId", userId))
+                        .queryEmbedding(embeddingModel.embed("a").content())
+                        .maxResults(100)
+                        .build()
+        );
 
-        List<File> files;
-        try (Stream<Path> walk = Files.walk(Paths.get(docsPath))) {
-            files = walk
-                    .filter(Files::isRegularFile)
-                    .filter(p -> p.toString().toLowerCase().endsWith(".pdf"))
-                    .map(Path::toFile)
-                    .toList();
-        } catch (IOException e) {
-            log.error("Error while walking the path: {}", docsPath, e);
-            return;
+        Set<String> fileNames = new HashSet<>();
+        for (EmbeddingMatch<TextSegment> match : search.matches()) {
+            String fileName = match.embedded().metadata().getString("fileName");
+            if (fileName != null) {
+                fileNames.add(fileName);
+            }
         }
 
-        log.info("Found {} PDF files to ingest", files.size());
-
-        if (files.isEmpty()) {
-            return;
-        }
-
-        DocumentSplitter splitter = DocumentSplitters.recursive(2048, 0);
-
-        DocumentTransformer userIdTransformer = document -> {
-            Metadata metadata = document.metadata().copy();
-            metadata.put("userId", userId);
-            return Document.from(document.text(), metadata);
-        };
-
-        EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                .documentTransformer(userIdTransformer)
-                .documentSplitter(splitter)
-                .embeddingModel(embeddingModel)
-                .embeddingStore(embeddingStore)
-                .build();
-
-        files.parallelStream().forEach(file -> {
-            Document document = FileSystemDocumentLoader.loadDocument(file.toPath(), new ApachePdfBoxDocumentParser());
-            ingestor.ingest(document);
-            log.info("Ingested document: {}", file.getName());
-        });
+        return new ArrayList<>(fileNames);
     }
+
+    @Override
+    public void ingestDocuments(MultipartFile file, String userId) {
+        try {
+            File tempFile = File.createTempFile("uploaded-", file.getOriginalFilename());
+            file.transferTo(tempFile);
+
+            DocumentSplitter splitter = DocumentSplitters.recursive(2048, 0);
+
+            DocumentTransformer userIdTransformer = document -> {
+                Metadata metadata = document.metadata().copy();
+                metadata.put("userId", userId);
+                metadata.put("fileName", file.getOriginalFilename());
+                return Document.from(document.text(), metadata);
+            };
+
+            EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                    .documentTransformer(userIdTransformer)
+                    .documentSplitter(splitter)
+                    .embeddingModel(embeddingModel)
+                    .embeddingStore(embeddingStore)
+                    .build();
+
+            // Now use the temp file
+            Document document = FileSystemDocumentLoader.loadDocument(tempFile.toPath(), new ApachePdfBoxDocumentParser());
+            ingestor.ingest(document);
+            log.info("Ingested document: {}", file.getOriginalFilename());
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            log.error("Failed to ingest document", e);
+            throw new RuntimeException("Document ingestion failed", e);
+        }
+    }
+
 
     @Override
     public ChatResponse chatWithDocument(ChatRequest chatRequest, String userId) {
