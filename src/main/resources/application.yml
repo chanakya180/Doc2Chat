@@ -8,7 +8,6 @@ spring:
     name: Doc2Chat
   security:
     oauth2:
-      audience: account
       client:
         provider:
           oidc:

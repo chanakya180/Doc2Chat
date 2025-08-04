@@ -1,4 +1,4 @@
-package com.chanakya.doc2chat.security;
+package com.chanakya.doc2chat.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

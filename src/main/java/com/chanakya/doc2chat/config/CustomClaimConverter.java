@@ -1,7 +1,8 @@
-package com.chanakya.doc2chat.security;
+package com.chanakya.doc2chat.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,12 +44,9 @@ public class CustomClaimConverter implements Converter<Map<String, Object>, Map<
         this.restTemplate = restTemplate;
     }
 
-    public Map<String, Object> convert(Map<String, Object> claims) {
-        Map<String, Object> convertedClaims = this.delegate.convert(claims);
-        if (
-            RequestContextHolder.getRequestAttributes() != null &&
-            ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()) != null
-        ) {
+    public Map<String, Object> convert(@NotNull Map<String, Object> claims) {
+        Map<String, Object> convertedClaims = delegate.convert(claims);
+        if (RequestContextHolder.getRequestAttributes() != null) {
             // Retrieve and set the token
             String token = bearerTokenResolver.resolve(
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()
