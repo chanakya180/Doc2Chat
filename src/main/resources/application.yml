@@ -6,9 +6,29 @@ logging:
 spring:
   application:
     name: Doc2Chat
+  security:
+    oauth2:
+      audience: account
+      client:
+        provider:
+          oidc:
+            issuer-uri: http://localhost:8082/realms/Doc2Chat
+        registration:
+          oidc:
+            client-id: web_client
+            client-secret: web_client
+            scope: openid, profile, email, offline_access # last one for refresh tokens
 
 server:
   port: 8080
+
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 1800
 
 embedding-store:
   host: localhost
@@ -32,4 +52,4 @@ langchain4j:
       api-key: ${OPENAI_API_KEY}
       model-name: text-embedding-ada-002
 
-docs.path: ${DOCS_PATH}
+docs.path: ""

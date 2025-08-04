@@ -6,6 +6,8 @@ import com.chanakya.doc2chat.dto.ChatResponse;
 import com.chanakya.doc2chat.service.DocumentService;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentSplitter;
+import dev.langchain4j.data.document.DocumentTransformer;
+import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
@@ -13,6 +15,7 @@ import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.*;
+import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,7 +47,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void ingestDocuments() {
+    public void ingestDocuments(String userId) {
 
         List<File> files;
         try (Stream<Path> walk = Files.walk(Paths.get(docsPath))) {
@@ -66,7 +69,14 @@ public class DocumentServiceImpl implements DocumentService {
 
         DocumentSplitter splitter = DocumentSplitters.recursive(2048, 0);
 
+        DocumentTransformer userIdTransformer = document -> {
+            Metadata metadata = document.metadata().copy();
+            metadata.put("userId", userId);
+            return Document.from(document.text(), metadata);
+        };
+
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                .documentTransformer(userIdTransformer)
                 .documentSplitter(splitter)
                 .embeddingModel(embeddingModel)
                 .embeddingStore(embeddingStore)
@@ -80,13 +90,14 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public ChatResponse chatWithDocument(ChatRequest chatRequest) {
+    public ChatResponse chatWithDocument(ChatRequest chatRequest, String userId) {
         Embedding content = embeddingModel.embed(chatRequest.getMessage()).content();
         EmbeddingSearchResult<TextSegment> search = embeddingStore.search(
-                EmbeddingSearchRequest.builder()
-                        .queryEmbedding(content)
-                        .maxResults(3)
-                        .build()
+          EmbeddingSearchRequest.builder()
+            .filter(new IsEqualTo("userId", userId))
+            .queryEmbedding(content)
+            .maxResults(3)
+            .build()
         );
 
         StringJoiner context = new StringJoiner("\n---\n");
