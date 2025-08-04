@@ -29,7 +29,7 @@ Keycloak is included in the `docker-compose.yml` file and will be started alongs
     ```bash
     docker-compose up -d
     ```
-    This will start both the database and Keycloak. By default, Keycloak will be available at [http://localhost:8081](http://localhost:8082).
+    This will start both the database and Keycloak. By default, Keycloak will be available at [http://localhost:8082](http://localhost:8082).
 
 2. **Import Realm Configuration:**
     - Log in to the Keycloak admin console at [http://localhost:8082](http://localhost:8082).
