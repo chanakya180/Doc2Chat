@@ -24,9 +24,17 @@ server:
 
 
 cors:
-  allowed-origins: "*"
-  allowed-methods: "*"
-  allowed-headers: "*"
+  allowed-origins:
+    - "*"
+  allowed-methods:
+    - GET
+    - PUT
+    - POST
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
   allow-credentials: true
   max-age: 1800
 

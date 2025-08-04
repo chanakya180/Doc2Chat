@@ -1,6 +1,8 @@
-package com.chanakya.doc2chat.security;
+package com.chanakya.doc2chat.config;
 
-import com.chanakya.doc2chat.config.CorsConfigurationProps;
+import com.chanakya.doc2chat.security.AudienceValidator;
+import com.chanakya.doc2chat.security.CustomClaimConverter;
+import com.chanakya.doc2chat.security.JwtGrantedAuthorityConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -29,31 +31,30 @@ public class SecurityConfig {
   @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
   private String issuerUri;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-            .cors(s -> s.configure(http))
-            .authorizeHttpRequests(authz -> authz
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(s -> s.jwtAuthenticationConverter(authenticationConverter()))
-            ).build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+      return http
+          .cors(s -> s.configure(http))
+          .authorizeHttpRequests(authz -> authz
+              .anyRequest().authenticated()
+          )
+          .oauth2ResourceServer(oauth2 -> oauth2
+              .jwt(s -> s.jwtAuthenticationConverter(authenticationConverter()))
+          ).build();
+  }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-      CorsConfigurationProps props = new CorsConfigurationProps();
-      CorsConfiguration configuration = new CorsConfiguration();
-      configuration.setAllowedOrigins(List.of(props.getAllowedOrigins()));
-      configuration.setAllowedMethods(List.of(props.getAllowedMethods()));
-      configuration.setAllowedHeaders(List.of(props.getAllowedHeaders()));
-      configuration.setAllowCredentials(props.getAllowCredentials());
-      configuration.setMaxAge(props.getMaxAge());
-      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-      source.registerCorsConfiguration("/**", configuration);
-      return source;
-    }
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource(CorsConfigurationProps props) {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(props.getAllowedOrigins());
+    configuration.setAllowedMethods(props.getAllowedMethods());
+    configuration.setAllowedHeaders(props.getAllowedHeaders());
+    configuration.setAllowCredentials(props.getAllowCredentials());
+    configuration.setMaxAge(props.getMaxAge());
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 
   Converter<Jwt, AbstractAuthenticationToken> authenticationConverter() {
     JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
