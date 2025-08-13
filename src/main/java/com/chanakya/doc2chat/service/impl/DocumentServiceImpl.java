@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.nio.file.Paths;
+import java.nio.file.InvalidPathException;
 
 @Slf4j
 @Service
@@ -62,7 +64,17 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void ingestDocuments(MultipartFile file, String userId) {
         try {
-            File tempFile = File.createTempFile("uploaded-", file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            String safeFilename = sanitizeFilename(originalFilename);
+            // Use a fixed prefix and a safe suffix (e.g., the extension from the sanitized filename)
+            String suffix = "";
+            int dotIdx = safeFilename.lastIndexOf('.');
+            if (dotIdx != -1 && dotIdx < safeFilename.length() - 1) {
+                suffix = safeFilename.substring(dotIdx);
+            } else {
+                suffix = ".tmp";
+            }
+            File tempFile = File.createTempFile("uploaded-", suffix);
             file.transferTo(tempFile);
 
             DocumentSplitter splitter = DocumentSplitters.recursive(2048, 0);
@@ -70,7 +82,7 @@ public class DocumentServiceImpl implements DocumentService {
             DocumentTransformer userIdTransformer = document -> {
                 Metadata metadata = document.metadata().copy();
                 metadata.put("userId", userId);
-                metadata.put("fileName", file.getOriginalFilename());
+                metadata.put("fileName", safeFilename);
                 return Document.from(document.text(), metadata);
             };
 
@@ -84,7 +96,7 @@ public class DocumentServiceImpl implements DocumentService {
             // Now use the temp file
             Document document = FileSystemDocumentLoader.loadDocument(tempFile.toPath(), new ApachePdfBoxDocumentParser());
             ingestor.ingest(document);
-            log.info("Ingested document: {}", file.getOriginalFilename());
+            log.info("Ingested document: {}", safeFilename);
             tempFile.deleteOnExit();
         } catch (IOException e) {
             log.error("Failed to ingest document", e);
@@ -116,5 +128,30 @@ public class DocumentServiceImpl implements DocumentService {
         );
 
         return new ChatResponse(assistant.chat(prompt));
+    }
+    /**
+     * Sanitizes a filename by extracting only the base name and ensuring it does not contain path separators or "..".
+     * If the filename is invalid or null, returns "file".
+     */
+    private String sanitizeFilename(String filename) {
+        if (filename == null) {
+            return "file";
+        }
+        // Remove any path components
+        String baseName;
+        try {
+            baseName = Paths.get(filename).getFileName().toString();
+        } catch (InvalidPathException e) {
+            return "file";
+        }
+        // Disallow suspicious patterns
+        if (baseName.contains("..") || baseName.contains("/") || baseName.contains("\\")) {
+            return "file";
+        }
+        // Optionally, restrict to a safe pattern (e.g., alphanumerics, dot, dash, underscore)
+        if (!baseName.matches("[\\w.\\- ]+")) {
+            return "file";
+        }
+        return baseName;
     }
 }
