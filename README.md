@@ -1,4 +1,4 @@
-[![Java CI with Maven](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml/badge.svg)](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml/badge.svg)](https://github.com/chanakya180/Doc2Chat/actions/workflows/maven.yml) [![CodeQL](https://github.com/chanakya180/Doc2Chat/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/chanakya180/Doc2Chat/actions/workflows/github-code-scanning/codeql)
 
 # Doc2Chat
 
